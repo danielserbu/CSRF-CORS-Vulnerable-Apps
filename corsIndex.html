@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Index Page</title>
+</head>
+<body>
+    <h2>Welcome to the CORS Index Page</h2>
+    <p>This is a demonstration of a CORS-enabled application.</p>
+    <p>You can try sending a POST request to the server with CORS headers:</p>
+    <form id="corsForm">
+        <label for="data">Data:</label><br>
+        <input type="text" id="data" name="data"><br><br>
+        <button type="button" onclick="sendRequest()">Send Request</button>
+    </form>
+    <p id="responseMessage"></p>
+
+    <script>
+        function sendRequest() {
+            const formData = new FormData(document.getElementById('corsForm'));
+            fetch('http://localhost:3000/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Origin': 'http://example1.com' // Change this to your allowed origin
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage').innerText = data.message;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
