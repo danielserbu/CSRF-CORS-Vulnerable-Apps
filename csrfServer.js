@@ -1,9 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// Use express-session middleware for session management
+app.use(session({
+  secret: 'secret-key', // Secret key to sign the session ID cookie
+  resave: false,
+  saveUninitialized: true
+}));
 
 // Hardcoded username and password
 const username = 'user';
@@ -13,6 +21,7 @@ const password = 'password';
 const authenticate = (req, res, next) => {
   const { username: reqUsername, password: reqPassword } = req.body;
   if (reqUsername === username && reqPassword === password) {
+    req.session.authenticated = true; // Set authenticated flag in session
     next(); // Proceed to the next middleware or route handler
   } else {
     res.status(401).send('Unauthorized');
@@ -43,7 +52,12 @@ app.post('/login', authenticate, (req, res) => {
 
 // Route to serve the transfer form
 app.get('/transfer', (req, res) => {
-  res.sendFile(__dirname + '/csrfIndex.html');
+  // Check if user is authenticated
+  if (req.session.authenticated) {
+    res.sendFile(__dirname + '/csrfIndex.html');
+  } else {
+    res.status(401).send('Unauthorized');
+  }
 });
 
 // Route to handle money transfer
