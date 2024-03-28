@@ -14,8 +14,8 @@ app.use(session({
 }));
 
 // Hardcoded username and password
-const username = 'user';
-const password = 'password';
+const username = 'test';
+const password = 'test';
 
 // Middleware to authenticate requests
 const authenticate = (req, res, next) => {
@@ -61,10 +61,14 @@ app.get('/transfer', (req, res) => {
 });
 
 // Route to handle money transfer
-app.post('/transfer', authenticate, (req, res) => {
-  const { amount } = req.body;
-  console.log(`Transferring ${amount} to a malicious account!`);
-  res.send('Transfer successful');
+app.post('/transfer', (req, res) => {
+  if (req.session.authenticated) {
+    const { amount } = req.body;
+    console.log(`Transferring ${amount} to a malicious account!`);
+    res.send('Transfer successful');
+  } else {
+    res.status(401).send('Unauthorized');
+  }
 });
 
 app.listen(3000, () => {
